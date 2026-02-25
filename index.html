@@ -6,8 +6,8 @@
     <title>QA Test Report - MotorParts Management System</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f7fa; color: #333; line-height: 1.6; }
-        .container { max-width: 1000px; margin: 0 auto; padding: 20px; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f7; color: #1f2933; line-height: 1.6; }
+        .container { max-width: 1220px; margin: 0 auto; padding: 24px 28px; }
         
         /* Header */
         .header { background: #2c5282; color: white; padding: 30px; border-radius: 12px; margin-bottom: 25px; }
@@ -15,15 +15,43 @@
         .header p { opacity: 0.9; font-size: 14px; }
         
         /* Summary Cards */
-        .summary { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; margin-bottom: 25px; }
-        .card { padding: 20px; border-radius: 10px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        .card.pass { background: #38a169; color: white; }
-        .card.fail { background: #e53e3e; color: white; }
-        .card.warn { background: #d69e2e; color: white; }
-        .card.total { background: #5a67d8; color: white; }
-        .card.skip { background: #718096; color: white; }
-        .card .number { font-size: 36px; font-weight: bold; }
-        .card .label { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; margin-top: 5px; }
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 18px;
+            margin-bottom: 28px;
+        }
+        .card {
+            padding: 18px 20px;
+            border-radius: 14px;
+            text-align: left;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
+            background: radial-gradient(circle at top left, rgba(255,255,255,0.12), transparent 55%);
+            border: 1px solid rgba(148, 163, 184, 0.35);
+        }
+        .card.total {
+            background: linear-gradient(135deg, #0f172a);
+            color: #f9fafb;
+            border-color: rgba(156, 163, 175, 0.6);
+        }
+        .card.pass {
+            background: linear-gradient(135deg, #0f766e);
+            color: #ecfdf5;
+        }
+        .card.fail {
+            background: linear-gradient(135deg, #b91c1c);
+            color: #fef2f2;
+        }
+        .card.warn {
+            background: linear-gradient(135deg, #b1a613);
+            color: #fefce8;
+        }
+        .card.skip {
+            background: linear-gradient(135deg, #4b5563);
+            color: #f9fafb;
+        }
+        .card .number { font-size: 32px; font-weight: 700; line-height: 1; }
+        .card .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; margin-top: 8px; opacity: 0.9; }
         
         /* Sections */
         .section { background: white; border-radius: 12px; margin-bottom: 20px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
@@ -95,7 +123,7 @@
         <div class="header">
             <h1>QA Test Report</h1>
             <p>MotorParts Inventory & POS Management System</p>
-            <p>Test Date: February 24, 2026 | Tester: QA Automation | Environment: Production</p>
+            <p>Test Date Start: February 24, 2026 | Tester: Johuni | Environment: Production</p>
         </div>
         
         <!-- Summary Cards -->
@@ -186,7 +214,9 @@
                     <p><strong>Actual:</strong> When "Show more" is off, only a limited set of products is shown. Users can mistake this for "All Categories" not including certain categories. Turning "Show more" on shows the full list (intended behavior).</p>
                     <p><strong>Impact:</strong> Confusing UX—consider defaulting to show all products or making the toggle more visible/labeled so "All Categories" is not perceived as broken.</p>
                     <p style="margin-top: 10px;"><strong>Preview:</strong></p>
-                    <img class="report-img" src="sc/show_all_toggle.png" alt="Inventory page showing the Show All button (toggle) that controls product list visibility" style="max-width: 100%; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); margin-top: 6px;" title="Click to enlarge" />
+                    <div style="display: flex; justify-content: center; margin-top: 4px;">
+                        <img class="report-img" src="sc/show_all_toggle.png" alt="Inventory page showing the Show All button (toggle) that controls product list visibility" style="width: 70%; max-width: 420px; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1);" title="Click to enlarge" />
+                    </div>
                 </div>
                 
                 <div class="bug-card">
