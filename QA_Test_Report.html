@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QA Test Report - MotorParts Management System</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f7fa; color: #333; line-height: 1.6; }
+        .container { max-width: 1000px; margin: 0 auto; padding: 20px; }
+        
+        /* Header */
+        .header { background: #2c5282; color: white; padding: 30px; border-radius: 12px; margin-bottom: 25px; }
+        .header h1 { font-size: 28px; margin-bottom: 5px; }
+        .header p { opacity: 0.9; font-size: 14px; }
+        
+        /* Summary Cards */
+        .summary { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; margin-bottom: 25px; }
+        .card { padding: 20px; border-radius: 10px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .card.pass { background: #38a169; color: white; }
+        .card.fail { background: #e53e3e; color: white; }
+        .card.warn { background: #d69e2e; color: white; }
+        .card.total { background: #5a67d8; color: white; }
+        .card.skip { background: #718096; color: white; }
+        .card .number { font-size: 36px; font-weight: bold; }
+        .card .label { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; margin-top: 5px; }
+        
+        /* Sections */
+        .section { background: white; border-radius: 12px; margin-bottom: 20px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .section-header { padding: 15px 20px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+        .section-header:hover { background: #edf2f7; }
+        .section-header h2 { font-size: 16px; color: #2d3748; }
+        .section-header .badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .badge.pass { background: #c6f6d5; color: #276749; }
+        .badge.fail { background: #fed7d7; color: #c53030; }
+        .badge.warn { background: #fefcbf; color: #975a16; }
+        .badge.skip { background: #e2e8f0; color: #4a5568; }
+        .section-content { padding: 20px; display: none; }
+        .section-content.active { display: block; }
+        
+        /* Test Results Table */
+        .test-table { width: 100%; border-collapse: collapse; }
+        .test-table th { text-align: left; padding: 10px 15px; background: #f8fafc; font-size: 12px; text-transform: uppercase; color: #718096; border-bottom: 2px solid #e2e8f0; }
+        .test-table td { padding: 12px 15px; border-bottom: 1px solid #e2e8f0; font-size: 14px; }
+        .test-table tr:hover { background: #f7fafc; }
+        .status { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; }
+        .status.pass { background: #c6f6d5; color: #276749; }
+        .status.fail { background: #fed7d7; color: #c53030; }
+        .status.warn { background: #fefcbf; color: #975a16; }
+        .status::before { content: ''; width: 8px; height: 8px; border-radius: 50%; }
+        .status.skip { background: #e2e8f0; color: #4a5568; }
+        .status.pass::before { background: #38a169; }
+        .status.fail::before { background: #e53e3e; }
+        .status.warn::before { background: #d69e2e; }
+        .status.skip::before { background: #718096; }
+        
+        /* Bug Report */
+        .bug-card { background: #fff5f5; border-left: 4px solid #e53e3e; padding: 15px 20px; margin-bottom: 15px; border-radius: 0 8px 8px 0; }
+        .bug-card.minor { background: #fffff0; border-left-color: #d69e2e; }
+        .bug-card h4 { color: #c53030; margin-bottom: 8px; font-size: 15px; }
+        .bug-card.minor h4 { color: #975a16; }
+        .bug-card p { font-size: 13px; color: #4a5568; margin-bottom: 5px; }
+        .bug-card .severity { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-left: 10px; }
+        .severity.high { background: #fed7d7; color: #c53030; }
+        .severity.medium { background: #fefcbf; color: #975a16; }
+        .severity.low { background: #bee3f8; color: #2b6cb0; }
+        
+        /* Footer */
+        .footer { text-align: center; padding: 20px; color: #718096; font-size: 13px; }
+        
+        /* Collapsible */
+        .chevron { transition: transform 0.3s; }
+        .section-header.open .chevron { transform: rotate(180deg); }
+        
+        /* Lightbox */
+        .report-img { cursor: pointer; }
+        .lightbox-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; z-index: 9999; padding: 20px; box-sizing: border-box; }
+        .lightbox-overlay.active { display: flex; }
+        .lightbox-overlay img { max-width: 95vw; max-height: 95vh; object-fit: contain; border-radius: 8px; box-shadow: 0 4px 24px rgba(0,0,0,0.4); }
+        .lightbox-overlay .lightbox-close { position: absolute; top: 16px; right: 24px; color: white; font-size: 32px; cursor: pointer; line-height: 1; opacity: 0.9; }
+        .lightbox-overlay .lightbox-close:hover { opacity: 1; }
+        
+        /* Print Styles */
+        @media print {
+            .section-content { display: block !important; }
+            .header { break-inside: avoid; }
+            .section { break-inside: avoid; }
+            .lightbox-overlay { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>QA Test Report</h1>
+            <p>MotorParts Inventory & POS Management System</p>
+            <p>Test Date: February 24, 2026 | Tester: QA Automation | Environment: Production</p>
+        </div>
+        
+        <!-- Summary Cards -->
+        <div class="summary">
+            <div class="card total">
+                <div class="number">33</div>
+                <div class="label">Total Tests</div>
+            </div>
+            <div class="card pass">
+                <div class="number">30</div>
+                <div class="label">Passed</div>
+            </div>
+            <div class="card fail">
+                <div class="number">2</div>
+                <div class="label">Failed</div>
+            </div>
+            <div class="card warn">
+                <div class="number">1</div>
+                <div class="label">Warning</div>
+            </div>
+            <div class="card skip">
+                <div class="number">0</div>
+                <div class="label">Skipped</div>
+            </div>
+        </div>
+        
+        <!-- Bug Summary -->
+        <div class="section">
+            <div class="section-header open" onclick="toggleSection(this)">
+                <h2>Bugs Found (14 Issues)</h2>
+                <span class="badge fail">Action Required</span>
+                <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </div>
+            <div class="section-content active">
+                <div class="bug-card">
+                    <h4>BUG-001: POS Silent Failure on Quantity Exceeding Stock <span class="severity medium">Medium</span></h4>
+                    <p><strong>Location:</strong> Sales Out</p>
+                    <p><strong>Steps:</strong> Sales Out → Select product → Enter quantity exceeding stock (e.g., 999 when only 32 available) → Click Add</p>
+                    <p><strong>Expected:</strong> Clear error message "Quantity exceeds available stock (32)"</p>
+                    <p><strong>Actual:</strong> Add button does nothing, no error message shown. Cart remains empty with no feedback.</p>
+                    <p><strong>Impact:</strong> Confusing UX - cashier has no idea why product wasn't added to cart</p>
+                    <p style="margin-top: 10px;"><strong>Preview:</strong> Cashier Sales Out screen showing quantity greater than stock with no error message.</p>
+                    <div style="display: flex; justify-content: center; margin-top: 6px;">
+                        <div style="flex: 1 1 260px; max-width: 480px;">
+                            <p style="font-size: 12px; color: #4a5568; margin-bottom: 4px; text-align: center;">Sales Out quantity greater than stock with no feedback</p>
+                            <img class="report-img" src="sc/quantity_message.png" alt="Sales Out screen with quantity exceeding stock and no error message shown" style="width: 100%; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1);" title="Click to enlarge" />
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bug-card minor">
+                    <h4>BUG-002: Add Product Form UX Issue for Negative Prices <span class="severity low">Low</span></h4>
+                    <p><strong>Location:</strong> Inventory → Add Product Form</p>
+                    <p><strong>Steps:</strong> Open Add Product → Enter negative values for Cost, Retail Price, Wholesale Price → Click Save</p>
+                    <p><strong>Expected:</strong> Validation error preventing negative prices</p>
+                    <p><strong>Actual:</strong> Form accepts negative values but Save button appears non-functional (form gets stuck). Product is NOT saved.</p>
+                    <p><strong>Impact:</strong> While data integrity is maintained, the UX is poor - form should validate and show clear error messages</p>
+                    <p style="margin-top: 10px;"><strong>Preview:</strong> Inventory example highlighting problematic values and the need for validation.</p>
+                    <div style="display: flex; justify-content: center; margin-top: 6px;">
+                        <div style="flex: 1 1 260px; max-width: 480px;">
+                            <p style="font-size: 12px; color: #4a5568; margin-bottom: 4px; text-align: center;">Inventory row highlighting invalid/edge-case values</p>
+                            <img class="report-img" src="sc/negative_stocks.png" alt="Inventory list row used as example for missing validation and edge-case handling" style="width: 100%; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1);" title="Click to enlarge" />
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bug-card">
+                    <h4>BUG-003: Admin Page Refresh Redirects to Dashboard <span class="severity medium">Medium</span></h4>
+                    <p><strong>Location:</strong> Inventory, Sales Out, Stock In, Wholesale, Check Reminder, Finance, Settings (admin area)</p>
+                    <p><strong>Steps:</strong> Log in as Admin → Navigate to any of the above pages → Refresh the page (F5 or browser refresh)</p>
+                    <p><strong>Expected:</strong> Page reloads and stays on the current section (e.g. Inventory, Stock In)</p>
+                    <p><strong>Actual:</strong> Page reloads but redirects to Dashboard instead of the current page.</p>
+                    <p><strong>Impact:</strong> Admin loses context on refresh; must re-navigate to the section they were on</p>
+                    <p style="margin-top: 10px;"><strong>Preview:</strong> Finance screen example where a refresh sends the user back to Dashboard instead of staying on Finance.</p>
+                    <div style="display: flex; justify-content: center; margin-top: 6px;">
+                        <div style="flex: 1 1 260px; max-width: 480px;">
+                            <p style="font-size: 12px; color: #4a5568; margin-bottom: 4px; text-align: center;">Admin on Finance page affected by refresh redirect behavior</p>
+                            <img class="report-img" src="sc/refresh_page.png" alt="Finance page illustration for refresh redirect issue where page does not stay on current section" style="width: 100%; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1);" title="Click to enlarge" />
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bug-card minor">
+                    <h4>BUG-004: "Show more" Toggle Easy to Miss on Inventory <span class="severity low">Low</span></h4>
+                    <p><strong>Location:</strong> Inventory → product list (with "All Categories" selected)</p>
+                    <p><strong>Steps:</strong> Open Inventory with category "All Categories" → Observe product list. Add a product in a category (e.g. Oils and Fluids); return to Inventory with "All Categories".</p>
+                    <p><strong>Expected:</strong> Either all products visible by default, or a clear indicator (e.g. "Show more" or "Showing X of Y") so users don't assume the filter is broken.</p>
+                    <p><strong>Actual:</strong> When "Show more" is off, only a limited set of products is shown. Users can mistake this for "All Categories" not including certain categories. Turning "Show more" on shows the full list (intended behavior).</p>
+                    <p><strong>Impact:</strong> Confusing UX—consider defaulting to show all products or making the toggle more visible/labeled so "All Categories" is not perceived as broken.</p>
+                    <p style="margin-top: 10px;"><strong>Preview:</strong></p>
+                    <img class="report-img" src="sc/show_all_toggle.png" alt="Inventory page showing the Show All button (toggle) that controls product list visibility" style="max-width: 100%; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); margin-top: 6px;" title="Click to enlarge" />
+                </div>
+                
+                <div class="bug-card">
+                    <h4>BUG-005: Sales Out Shows Only 3 Products by Default <span class="severity high">High</span></h4>
+                    <p><strong>Location:</strong> Cashier & Manager (Main Branch) → Sales Out → Select Products panel</p>
+                    <p><strong>Steps:</strong> Log in as Cashier or Manager for Main Branch → Go to Sales Out → With category set to "All Categories" and no search term, observe the product list.</p>
+                    <p><strong>Expected:</strong> Either all available products are listed, or there is a clear paging/"Show more" control indicating that only a subset is visible.</p>
+                    <p><strong>Actual:</strong> Only 3 products are visible in the Select Products list even when more products exist; there is no obvious way to see the rest without knowing or guessing product names.</p>
+                    <p><strong>Impact:</strong> Cashier and Manager may assume only these 3 products are available and might miss other items unless they know to search by name. Consider adding pagination or a visible "Show more" indicator.</p>
+                    <p style="margin-top: 10px;"><strong>Preview:</strong> Sales Out product list for Cashier and Manager, each showing only three visible items under "All Categories".</p>
+                    <div style="display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 6px;">
+                        <div style="flex: 1 1 220px; max-width: 320px;">
+                            <p style="font-size: 12px; color: #4a5568; margin-bottom: 4px; text-align: center;">Cashier – Sales Out</p>
+                            <img class="report-img" src="sc/cashier_sales_out.png" alt="Cashier Sales Out view showing only three products in the Select Products list" style="width: 100%; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1);" title="Click to enlarge" />
+                        </div>
+                        <div style="flex: 1 1 220px; max-width: 320px;">
+                            <p style="font-size: 12px; color: #4a5568; margin-bottom: 4px; text-align: center;">Manager – Sales Out</p>
+                            <img class="report-img" src="sc/manager_sales_out.png" alt="Manager Sales Out view showing only three products in the Select Products list" style="width: 100%; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1);" title="Click to enlarge" />
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bug-card">
+                    <h4>BUG-006: Wholesale - All Categories Shows Only 3 Products <span class="severity high">High</span></h4>
+                    <p><strong>Location:</strong> Wholesale (Admin) → Select Products</p>
+                    <p><strong>Steps:</strong> Log in as Admin → Go to Whole Sale → Ensure category filter is set to \"All Categories\" with no search term → Compare the visible product list to the actual number of products in Inventory.</p>
+                    <p><strong>Expected:</strong> With \"All Categories\" selected, Wholesale should list all eligible products (or clearly indicate paging / \"Show more\" so users know more items are available).</p>
+                    <p><strong>Actual:</strong> Similar to BUG-005, the Wholesale Select Products panel only shows 3 products even though there are many more items in Inventory; no obvious control indicates that the list is truncated.</p>
+                    <p><strong>Impact:</strong> Admins using Wholesale for bulk orders may assume there are only a few products available at wholesale pricing, missing other items and potentially losing sales opportunities.</p>
+                    <p style="margin-top: 10px;"><strong>Preview:</strong> Wholesale Select Products view with \"All Categories\" selected, showing only three products despite a larger inventory.</p>
+                    <div style="display: flex; justify-content: center; margin-top: 6px;">
+                        <div style="flex: 1 1 260px; max-width: 480px;">
+                            <p style="font-size: 12px; color: #4a5568; margin-bottom: 4px; text-align: center;">Wholesale All Categories list limited to three products</p>
+                            <img class="report-img" src="sc/wholesale.png" alt="Wholesale Select Products panel showing only three products with All Categories selected" style="width: 100%; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1);" title="Click to enlarge" />
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bug-card">
+                    <h4>BUG-007: Offline Add Product Shows Success Despite Network Error <span class="severity medium">Medium</span></h4>
+                    <p><strong>Location:</strong> Inventory → Add Product</p>
+                    <p><strong>Steps:</strong> Set browser to Offline (DevTools → Network → Offline) → Open Add Product → Fill in product details → Click Save Product</p>
+                    <p><strong>Expected:</strong> After the "Network error: Could not reach server" dialog, the app should not show a success message. User should see that the product was not saved (e.g. stay on form with error state, or a single clear "Save failed" message).</p>
+                    <p><strong>Actual:</strong> A "Network error" dialog appears first (correct). After clicking OK, the app then shows "Product Added Successfully!" even though the request never reached the server—product is not in the list when back online.</p>
+                    <p><strong>Impact:</strong> Misleading feedback: user believes the product was saved when it was not. Can cause inventory discrepancies and confusion. Fix: do not show success when the save request failed; only show success after confirmed server response.</p>
+                    <p style="margin-top: 10px;"><strong>Preview:</strong> (1) Network error dialog when saving offline; (2) After clicking OK, incorrect "Product Added Successfully!" message while still offline.</p>
+                    <div style="display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 6px;">
+                        <div style="flex: 1 1 220px; max-width: 360px;">
+                            <p style="font-size: 12px; color: #4a5568; margin-bottom: 4px; text-align: center;">1. Network error when saving offline</p>
+                            <img class="report-img" src="sc/offline_test_img_1.png" alt="Add Product form with Network error dialog while browser is Offline" style="width: 100%; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1);" title="Click to enlarge" />
+                        </div>
+                        <div style="flex: 1 1 220px; max-width: 360px;">
+                            <p style="font-size: 12px; color: #4a5568; margin-bottom: 4px; text-align: center;">2. Incorrect success message after OK (still offline)</p>
+                            <img class="report-img" src="sc/offline_test_img_2.png" alt="Product Added Successfully message shown despite offline and failed request" style="width: 100%; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1);" title="Click to enlarge" />
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bug-card minor">
+                    <h4>BUG-008: Operating Expense – No Due Date Field When Adding <span class="severity low">Low</span></h4>
+                    <p><strong>Location:</strong> Finance (or Expenses) → Add Operating Expense</p>
+                    <p><strong>Steps:</strong> Open Add Operating Expense → Fill in expense details → Save. View the added expense; it shows a due date.</p>
+                    <p><strong>Expected:</strong> When adding an expense, the form should allow the user to specify a due date (e.g. date picker or due-date field). The listed due date should reflect the user’s choice.</p>
+                    <p><strong>Actual:</strong> The add-expense form does not include a due date field. The due date displayed for the expense defaults to the day the expense was added, with no way to set a different due date at creation time.</p>
+                    <p><strong>Impact:</strong> Users cannot record future-due or backdated due dates when adding an expense; workaround is to add then edit (if supported) or accept incorrect due dates.</p>
+                    <p style="margin-top: 10px;"><strong>Preview:</strong> Add expense form (no due date field) and resulting expense with default due date.</p>
+                    <div style="display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 6px;">
+                        <div style="flex: 1 1 220px; max-width: 360px;">
+                            <p style="font-size: 12px; color: #4a5568; margin-bottom: 4px; text-align: center;">Add expense form – no due date field</p>
+                            <img class="report-img" src="sc/expense_1.png" alt="Add operating expense form without due date field" style="width: 100%; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1);" title="Click to enlarge" />
+                        </div>
+                        <div style="flex: 1 1 220px; max-width: 360px;">
+                            <p style="font-size: 12px; color: #4a5568; margin-bottom: 4px; text-align: center;">Expense listed with default due date</p>
+                            <img class="report-img" src="sc/expense_2.png" alt="Operating expense showing due date defaulting to add date" style="width: 100%; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1);" title="Click to enlarge" />
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bug-card">
+                    <h4>BUG-009: Cart Allows Quantity Beyond Stock via Repeated Adds <span class="severity high">High</span></h4>
+                    <p><strong>Location:</strong> Sales Out (Admin, Manager, Cashier) → Cart</p>
+                    <p><strong>Steps:</strong> Find a product with stock = 13 → Add 13 units to cart → Add the same product with 13 units again (and repeat) → Click Complete Sale.</p>
+                    <p><strong>Expected:</strong> Total quantity of an item in the cart should never exceed its available stock. After 13 units are in the cart, further attempts to add that item should be blocked with a clear error.</p>
+                    <p><strong>Actual:</strong> Each 13‑unit add is accepted and the cart total (and final sale amount) continues to increase, even though this exceeds the actual stock of 13 pieces.</p>
+                    <p><strong>Impact:</strong> System allows overselling beyond inventory, leading to inaccurate stock levels and misleading sales totals across Admin, Manager, and Cashier flows.</p>
+                    <p style="margin-top: 10px;"><strong>Preview:</strong> Cart showing repeated 13‑unit adds for the same product, exceeding actual stock.</p>
+                    <div style="display: flex; justify-content: center; margin-top: 6px;">
+                        <div style="flex: 1 1 260px; max-width: 420px;">
+                            <p style="font-size: 12px; color: #4a5568; margin-bottom: 4px; text-align: center;">Cart with repeated 13‑unit adds (stock overflow)</p>
+                            <img class="report-img" src="sc/cart_overflow.png" alt="Sales cart showing repeated 13-unit adds for the same product, exceeding stock" style="width: 100%; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1);" title="Click to enlarge" />
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bug-card">
+                    <h4>BUG-010: Paid Check Reminders Do Not Affect Expense Tally <span class="severity medium">Medium</span></h4>
+                    <p><strong>Location:</strong> Finance → Check Reminder / Tally of Expenses</p>
+                    <p><strong>Steps:</strong> Add a Check Reminder for an outgoing payment → Later, mark the check as Paid → Open the expenses/tally view to compare totals.</p>
+                    <p><strong>Expected:</strong> When a Check Reminder is marked Paid, its amount should be reflected in the system’s expense tracking (e.g. deducted from available cash / included in expense totals), similar to an operating expense, or at least clearly linked.</p>
+                    <p><strong>Actual:</strong> Marking a check reminder as Paid only updates its status; the amount is not automatically deducted or reflected in the expense tally. Operating expenses and check-based payments are not kept in sync.</p>
+                    <p><strong>Impact:</strong> Financial view can become misleading—paid checks are not counted alongside operating expenses, so owners may underestimate total expenses or have to manually reconcile checks versus expenses.</p>
+                    <p style="margin-top: 10px;"><strong>Preview:</strong> Check reminders marked Paid and the separate expense tally that does not include those amounts.</p>
+                    <div style="display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 6px;">
+                        <div style="flex: 1 1 220px; max-width: 360px;">
+                            <p style="font-size: 12px; color: #4a5568; margin-bottom: 4px; text-align: center;">Paid check reminders list</p>
+                            <img class="report-img" src="sc/tally_expense_1.png" alt="Finance screen showing paid check reminders" style="width: 100%; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1);" title="Click to enlarge" />
+                        </div>
+                        <div style="flex: 1 1 220px; max-width: 360px;">
+                            <p style="font-size: 12px; color: #4a5568; margin-bottom: 4px; text-align: center;">Expense tally not including paid checks</p>
+                            <img class="report-img" src="sc/tally_expense_2.png" alt="Expense tally view where paid checks are not reflected" style="width: 100%; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1);" title="Click to enlarge" />
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bug-card">
+                    <h4>BUG-011: Branch Operating Expenses Leak Between Branches <span class="severity high">High</span></h4>
+                    <p><strong>Location:</strong> Finance → Operating Expenses / P&amp;L per Branch</p>
+                    <p><strong>Steps:</strong> Switch to <em>Main Branch</em> → Add an operating expense (e.g. ₱18,000) and mark it Paid → Switch branch selector to another branch (e.g. Aglipay Branch) → Open the Finance view.</p>
+                    <p><strong>Expected:</strong> Each branch’s Finance view should reflect only that branch’s own operating expenses and net income. Expenses added in Main Branch should not appear in Aglipay Branch (unless explicitly shared/global).</p>
+                    <p><strong>Actual:</strong> Operating expenses recorded in Main Branch are also shown in the other branch’s Finance view (e.g. Aglipay Branch shows ₱18,000 operating expenses and corresponding negative net income, even with no sales or expenses in that branch).</p>
+                    <p><strong>Impact:</strong> Per-branch P&amp;L is incorrect—expenses “leak” into other branches, making it impossible for the owner to trust branch-level profitability or compare branches accurately.</p>
+                    <p style="margin-top: 10px;"><strong>Preview:</strong> Finance view for Aglipay Branch showing operating expenses and net income impacted by an expense created in Main Branch.</p>
+                    <div style="display: flex; justify-content: center; margin-top: 6px;">
+                        <div style="flex: 1 1 260px; max-width: 480px;">
+                            <p style="font-size: 12px; color: #4a5568; margin-bottom: 4px; text-align: center;">Branch Finance showing leaked operating expense from Main Branch</p>
+                            <img class="report-img" src="sc/leaking_expense.png" alt="Finance page for Aglipay Branch showing operating expenses and net income affected by an expense from Main Branch" style="width: 100%; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1);" title="Click to enlarge" />
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bug-card">
+                    <h4>BUG-012: Manager Cannot Delete Product from Inventory <span class="severity medium">Medium</span></h4>
+                    <p><strong>Location:</strong> Inventory (Manager role) → Product list → Delete action</p>
+                    <p><strong>Steps:</strong> Log in as Manager → Go to Inventory → For an existing product, click the trash/delete icon → In the browser confirmation dialog “Delete this product?”, click OK.</p>
+                    <p><strong>Expected:</strong> After confirming deletion, the product should be removed from the Inventory list (and no longer available in Sales Out / Stock In for that branch).</p>
+                    <p><strong>Actual:</strong> The confirmation dialog appears and OK is accepted, but the product remains in the list; there is no error message and no visible change.</p>
+                    <p><strong>Impact:</strong> Managers cannot clean up or correct inventory from their role, forcing all delete operations to go through Admin and increasing risk of stale or incorrect products staying in the system.</p>
+                    <p style="margin-top: 10px;"><strong>Preview:</strong> Manager attempting to delete a product, with confirmation dialog shown but product not removed.</p>
+                    <div style="display: flex; justify-content: center; margin-top: 6px;">
+                        <div style="flex: 1 1 260px; max-width: 480px;">
+                            <p style="font-size: 12px; color: #4a5568; margin-bottom: 4px; text-align: center;">Manager delete confirmation with product still present</p>
+                            <img class="report-img" src="sc/manager_delete.png" alt="Inventory screen as Manager with browser confirmation dialog asking Delete this product but product not deleted" style="width: 100%; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1);" title="Click to enlarge" />
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bug-card">
+                    <h4>BUG-013: Negative Stock and Negative Inventory Value from Overselling <span class="severity high">High</span></h4>
+                    <p><strong>Location:</strong> Inventory &amp; Dashboard (Admin, branch views)</p>
+                    <p><strong>Steps:</strong> Using Sales Out, oversell a product so that its stock goes below zero (e.g. by repeatedly adding more than available stock as described in BUG-009) → Open Inventory and Dashboard for that branch.</p>
+                    <p><strong>Expected:</strong> System should prevent inventory from going below zero, or at minimum should not treat negative stock as valid when calculating Inventory Value and Low Stock information.</p>
+                    <p><strong>Actual:</strong> Product stock can become negative (e.g. Stock: -2), and the Dashboard’s Inventory Value panel shows a negative peso value (e.g. -₱1,000) for that branch, even though inventory value in reality cannot be negative.</p>
+                    <p><strong>Impact:</strong> Inventory and financial dashboards become misleading; negative stock and negative inventory asset value make it hard for the owner to understand real stock and asset position. This issue is directly related to BUG-009 (cart overselling) since overselling drives stock below zero.</p>
+                    <p style="margin-top: 10px;"><strong>Preview:</strong> Inventory and Dashboard views showing negative stock and negative inventory value for a product after overselling.</p>
+                    <div style="display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 6px;">
+                        <div style="flex: 1 1 220px; max-width: 360px;">
+                            <p style="font-size: 12px; color: #4a5568; margin-bottom: 4px; text-align: center;">Inventory – product with negative stock count</p>
+                            <img class="report-img" src="sc/negative_stocks.png" alt="Inventory list showing a product with Stock -2 highlighted" style="width: 100%; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1);" title="Click to enlarge" />
+                        </div>
+                        <div style="flex: 1 1 220px; max-width: 360px;">
+                            <p style="font-size: 12px; color: #4a5568; margin-bottom: 4px; text-align: center;">Dashboard – negative inventory value from negative stock</p>
+                            <img class="report-img" src="sc/negative_inventory_value.png" alt="Dashboard showing negative inventory value and low stock card for product with negative stock" style="width: 100%; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1);" title="Click to enlarge" />
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bug-card">
+                    <h4>BUG-014: Branch Inventory Cache Shows Previous Account’s Data After Account Switch <span class="severity medium">Medium</span></h4>
+                    <p><strong>Location:</strong> Inventory (branch-specific) after logging out Admin and logging in as Manager of another branch in the same browser.</p>
+                    <p><strong>Steps:</strong> 1) Log in as Admin on Main Branch and view Inventory (with products). 2) Log out (same browser tab). 3) Log in as Manager of a second branch whose inventory is actually empty. 4) Immediately open Inventory for the second branch (before manual refresh).</p>
+                    <p><strong>Expected:</strong> After logging in as a different user/branch, Inventory should reload using the new account’s branch context so the Manager of the second branch only sees that branch’s own products (empty in this scenario).</p>
+                    <p><strong>Actual:</strong> On initial load after account switch, the Manager of the second branch temporarily sees the <em>Main Branch</em> products as if they belong to the second branch. Only after manually refreshing the page does the inventory correctly show as empty.</p>
+                    <p><strong>Impact:</strong> Staff can be misled about which items exist in their branch (especially when checking availability for customers), and this reveals a broader issue with caching/session state not being cleared properly between logins.</p>
+                    <p style="margin-top: 10px;"><strong>Preview:</strong> Sequence showing account switch from Admin (Main Branch) to Manager of another branch and the stale inventory view before refresh.</p>
+                    <div style="display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 6px;">
+                        <div style="flex: 1 1 220px; max-width: 320px;">
+                            <p style="font-size: 12px; color: #4a5568; margin-bottom: 4px; text-align: center;">1. Admin logged in with Main Branch inventory</p>
+                            <img class="report-img" src="sc/account_change_1.png" alt="Admin session showing Main Branch inventory before logout" style="width: 100%; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1);" title="Click to enlarge" />
+                        </div>
+                        <div style="flex: 1 1 220px; max-width: 320px;">
+                            <p style="font-size: 12px; color: #4a5568; margin-bottom: 4px; text-align: center;">2. Logout from Admin in same browser</p>
+                            <img class="report-img" src="sc/account_change_2.png" alt="Logout screen after Admin session" style="width: 100%; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1);" title="Click to enlarge" />
+                        </div>
+                        <div style="flex: 1 1 220px; max-width: 320px;">
+                            <p style="font-size: 12px; color: #4a5568; margin-bottom: 4px; text-align: center;">3. Login as Manager for second branch</p>
+                            <img class="report-img" src="sc/account_change_3.png" alt="Login screen for Manager of second branch" style="width: 100%; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1);" title="Click to enlarge" />
+                        </div>
+                        <div style="flex: 1 1 220px; max-width: 320px;">
+                            <p style="font-size: 12px; color: #4a5568; margin-bottom: 4px; text-align: center;">4. After login, Manager sees Main Branch products in second branch Inventory</p>
+                            <img class="report-img" src="sc/account_change_4.png" alt="Second branch Manager Inventory showing products that belong to Main Branch" style="width: 100%; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1);" title="Click to enlarge" />
+                        </div>
+                        <div style="flex: 1 1 220px; max-width: 320px;">
+                            <p style="font-size: 12px; color: #4a5568; margin-bottom: 4px; text-align: center;">5. After manual refresh, inventory correctly shows empty for second branch</p>
+                            <img class="report-img" src="sc/account_change_5.png" alt="Second branch Manager Inventory showing empty list after manual refresh" style="width: 100%; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1);" title="Click to enlarge" />
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bug-card">
+                    <h4>BUG-012: Manager Cannot Delete Product from Inventory <span class="severity high">High</span></h4>
+                    <p><strong>Location:</strong> Inventory (Manager role) → Product list → Delete action</p>
+                    <p><strong>Steps:</strong> Log in as Manager → Go to Inventory → For an existing product, click the trash/delete icon → In the browser confirmation dialog “Delete this product?”, click OK.</p>
+                    <p><strong>Expected:</strong> After confirming deletion, the product should be removed from the Inventory list (and no longer available in Sales Out / Stock In for that branch).</p>
+                    <p><strong>Actual:</strong> The confirmation dialog appears and OK is accepted, but the product remains in the list; there is no error message and no visible change.</p>
+                    <p><strong>Impact:</strong> Managers cannot clean up or correct inventory from their role, forcing all delete operations to go through Admin and increasing risk of stale or incorrect products staying in the system.</p>
+                    <p style="margin-top: 10px;"><strong>Preview:</strong> Manager attempting to delete a product, with confirmation dialog shown but product not removed.</p>
+                    <div style="display: flex; justify-content: center; margin-top: 6px;">
+                        <div style="flex: 1 1 260px; max-width: 480px;">
+                            <p style="font-size: 12px; color: #4a5568; margin-bottom: 4px; text-align: center;">Manager delete confirmation with product still present</p>
+                            <img class="report-img" src="sc/manager_delete.png" alt="Inventory screen as Manager with browser confirmation dialog asking Delete this product but product not deleted" style="width: 100%; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1);" title="Click to enlarge" />
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bug-card">
+                    <h4>BUG-011: Branch Operating Expenses Leak Between Branches <span class="severity high">High</span></h4>
+                    <p><strong>Location:</strong> Finance → Operating Expenses / P&amp;L per Branch</p>
+                    <p><strong>Steps:</strong> Switch to <em>Main Branch</em> → Add an operating expense (e.g. ₱18,000) and mark it Paid → Switch branch selector to another branch (e.g. Aglipay Branch) → Open the Finance view.</p>
+                    <p><strong>Expected:</strong> Each branch’s Finance view should reflect only that branch’s own operating expenses and net income. Expenses added in Main Branch should not appear in Aglipay Branch (unless explicitly shared/global).</p>
+                    <p><strong>Actual:</strong> Operating expenses recorded in Main Branch are also shown in the other branch’s Finance view (e.g. Aglipay Branch shows ₱18,000 operating expenses and corresponding negative net income, even with no sales or expenses in that branch).</p>
+                    <p><strong>Impact:</strong> Per-branch P&amp;L is incorrect—expenses “leak” into other branches, making it impossible for the owner to trust branch-level profitability or compare branches accurately.</p>
+                    <p style="margin-top: 10px;"><strong>Preview:</strong> Finance view for Aglipay Branch showing operating expenses and net income impacted by an expense created in Main Branch.</p>
+                    <div style="display: flex; justify-content: center; margin-top: 6px;">
+                        <div style="flex: 1 1 260px; max-width: 480px;">
+                            <p style="font-size: 12px; color: #4a5568; margin-bottom: 4px; text-align: center;">Branch Finance showing leaked operating expense from Main Branch</p>
+                            <img class="report-img" src="sc/leaking_expense.png" alt="Finance page for Aglipay Branch showing operating expenses and net income affected by an expense from Main Branch" style="width: 100%; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1);" title="Click to enlarge" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Phase 1: Authentication -->
+        <div class="section">
+            <div class="section-header" onclick="toggleSection(this)">
+                <h2>Phase 1: Authentication & Authorization</h2>
+                <span class="badge pass">All Passed</span>
+                <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </div>
+            <div class="section-content">
+                <table class="test-table">
+                    <thead>
+                        <tr><th>Test ID</th><th>Test Case</th><th>Status</th><th>Notes</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>TC-1.1</td><td>Admin Login - Valid Credentials</td><td><span class="status pass">Pass</span></td><td>Redirected to Dashboard with full menu access</td></tr>
+                        <tr><td>TC-1.2</td><td>Cashier Login - Valid Credentials</td><td><span class="status pass">Pass</span></td><td>Redirected to Sales/POS screen only</td></tr>
+                        <tr><td>TC-1.3</td><td>Manager Login - Valid Credentials</td><td><span class="status pass">Pass</span></td><td>Redirected to Inventory management</td></tr>
+                        <tr><td>TC-1.4</td><td>Invalid Credentials</td><td><span class="status pass">Pass</span></td><td>Error message "Invalid username or password"</td></tr>
+                        <tr><td>TC-1.5</td><td>Blank Fields</td><td><span class="status pass">Pass</span></td><td>Handled gracefully with error message</td></tr>
+                        <tr><td>TC-1.6</td><td>Non-existent Username</td><td><span class="status pass">Pass</span></td><td>Generic "Invalid username or password" shown (no user enumeration)</td></tr>
+                        <tr><td>TC-1.7</td><td>Logout Functionality</td><td><span class="status pass">Pass</span></td><td>Session cleared, redirected to login</td></tr>
+                        <tr><td>TC-1.8</td><td>Cashier URL Protection</td><td><span class="status pass">Pass</span></td><td>Accessing /dashboard redirects to Sales page</td></tr>
+                        <tr><td>TC-1.9</td><td>Manager URL Protection</td><td><span class="status pass">Pass</span></td><td>Accessing /admin redirects to Inventory page</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Phase 2: Inventory -->
+        <div class="section">
+            <div class="section-header" onclick="toggleSection(this)">
+                <h2>Phase 2: Inventory Management</h2>
+                <span class="badge warn">1 Warning</span>
+                <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </div>
+            <div class="section-content">
+                <table class="test-table">
+                    <thead>
+                        <tr><th>Test ID</th><th>Test Case</th><th>Status</th><th>Notes</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>TC-2.1</td><td>Add New Product - Valid Data</td><td><span class="status pass">Pass</span></td><td>Product save and persist verified in initial run</td></tr>
+                        <tr><td>TC-2.2</td><td>Add Product - Negative Price Validation</td><td><span class="status warn">Warning</span></td><td>See BUG-002: Form stuck, no validation message</td></tr>
+                        <tr><td>TC-2.3</td><td>Add Product - Extremely Large Stock</td><td><span class="status pass">Pass</span></td><td>System accepts or validates large numbers without crash</td></tr>
+                        <tr><td>TC-2.4</td><td>View Inventory - Zero Stock Highlighting</td><td><span class="status pass">Pass</span></td><td>Zero stock highlighted in Dashboard Low Stock section and count</td></tr>
+                        <tr><td>TC-2.5</td><td>Edit Existing Product</td><td><span class="status pass">Pass</span></td><td>Stock updated from 15→20, saved successfully</td></tr>
+                        <tr><td>TC-2.6</td><td>Delete Product - With Sales History</td><td><span class="status pass">Pass</span></td><td>Product with sales history deleted from Inventory; View Sales still shows past sale, no crash</td></tr>
+                        <tr><td>TC-2.7</td><td>Stock-In (Replenishment)</td><td><span class="status pass">Pass</span></td><td>Stock-In added 30 units to TRW Brake Disc Rotor (Front); stock 0→30</td></tr>
+                        <tr><td>—</td><td>Search Functionality</td><td><span class="status pass">Pass</span></td><td>Search "Brake" returned 3 relevant products</td></tr>
+                        <tr><td>—</td><td>Category Filter</td><td><span class="status pass">Pass</span></td><td>Filtered "Electronics" showed only 3 electronics items</td></tr>
+                        <tr><td>—</td><td>All Categories + Show more</td><td><span class="status pass">Pass</span></td><td>Re-tested: "All Categories" shows full list when "Show more" toggle is on; with toggle off, list is limited (intended). Products in Oils and Fluids, etc. appear when Show more is enabled.</td></tr>
+                        <tr><td>—</td><td>Inventory re-test (categories)</td><td><span class="status pass">Pass</span></td><td>Category filter and Show more behavior verified; no bug in filter logic.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Phase 3: POS -->
+        <div class="section">
+            <div class="section-header" onclick="toggleSection(this)">
+                <h2>Phase 3: Point of Sale (POS)</h2>
+                <span class="badge fail">1 Failed</span>
+                <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </div>
+            <div class="section-content">
+                <table class="test-table">
+                    <thead>
+                        <tr><th>Test ID</th><th>Test Case</th><th>Status</th><th>Notes</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>TC-3.1</td><td>Add Single Item to Cart</td><td><span class="status pass">Pass</span></td><td>Product added, price calculated correctly</td></tr>
+                        <tr><td>TC-3.2</td><td>Add Multiple Items to Cart</td><td><span class="status pass">Pass</span></td><td>Multiple products add; subtotal calculated correctly</td></tr>
+                        <tr><td>TC-3.3</td><td>Adjust Cart Quantity</td><td><span class="status pass">Pass</span></td><td>Quantity change updates line total and grand total</td></tr>
+                        <tr><td>TC-3.4</td><td>Stock Constraint - Prevent Overselling</td><td><span class="status fail">Fail</span></td><td>See BUG-001 and BUG-009: overselling/stock constraint issues in cart</td></tr>
+                        <tr><td>TC-3.5</td><td>Remove Item from Cart</td><td><span class="status pass">Pass</span></td><td>Item removal updates cart and total</td></tr>
+                        <tr><td>TC-3.6</td><td>Checkout - Complete Transaction</td><td><span class="status pass">Pass</span></td><td>Sale completed, stock decremented (28→27)</td></tr>
+                        <tr><td>TC-3.7</td><td>Checkout - Empty Cart Validation</td><td><span class="status pass">Pass</span></td><td>Complete Sale disabled or blocked when cart empty</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Phase 4: Dashboard -->
+        <div class="section">
+            <div class="section-header" onclick="toggleSection(this)">
+                <h2>Phase 4: Dashboard & Analytics</h2>
+                <span class="badge pass">All Passed</span>
+                <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </div>
+            <div class="section-content">
+                <table class="test-table">
+                    <thead>
+                        <tr><th>Test ID</th><th>Test Case</th><th>Status</th><th>Notes</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>TC-4.1</td><td>Dashboard - Access & Data Display</td><td><span class="status pass">Pass</span></td><td>Revenue, Profit, Inventory Value, Low Stock displayed correctly</td></tr>
+                        <tr><td>TC-4.2</td><td>Dashboard - Total Revenue Accuracy</td><td><span class="status pass">Pass</span></td><td>Revenue updates after sale; matches branch data</td></tr>
+                        <tr><td>TC-4.3</td><td>Dashboard - Top Selling Items</td><td><span class="status pass">Pass</span></td><td>Top Selling Products section populated from sales</td></tr>
+                        <tr><td>TC-4.4</td><td>Dashboard - Low Stock Alerts</td><td><span class="status pass">Pass</span></td><td>Low Stock section and count displayed (0 when none)</td></tr>
+                        <tr><td>TC-4.5</td><td>Dashboard - Profit Calculation</td><td><span class="status pass">Pass</span></td><td>Today's Profit shown and consistent with sales</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Phase 5: Multi-Branch -->
+        <div class="section">
+            <div class="section-header" onclick="toggleSection(this)">
+                <h2>Phase 5: Multi-Branch & Resilience</h2>
+                <span class="badge fail">1 Failed</span>
+                <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </div>
+            <div class="section-content">
+                <table class="test-table">
+                    <thead>
+                        <tr><th>Test ID</th><th>Test Case</th><th>Status</th><th>Notes</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>TC-5.1</td><td>Multi-Branch - Data Segregation</td><td><span class="status pass">Pass</span></td><td>Branch switch, inventory per branch, cashier restriction verified</td></tr>
+                        <tr><td>TC-5.2</td><td>Network Resilience - Slow Connection</td><td><span class="status pass">Pass</span></td><td>Tested with Slow 3G via DevTools; save operation remained responsive, loading state shown, no crash.</td></tr>
+                        <tr><td>TC-5.3</td><td>Network Resilience - Connection Timeout</td><td><span class="status fail">Fail</span></td><td>Offline Add Product shows \"Product Added Successfully!\" after network error; request never reached server (see BUG-007).</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Phase 6: User Management -->
+        <div class="section">
+            <div class="section-header" onclick="toggleSection(this)">
+                <h2>Phase 6: User Management (Admin Only)</h2>
+                <span class="badge pass">All Passed</span>
+                <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </div>
+            <div class="section-content">
+                <table class="test-table">
+                    <thead>
+                        <tr><th>Test ID</th><th>Test Case</th><th>Status</th><th>Notes</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>TC-6.1</td><td>Create New User Account</td><td><span class="status pass">Pass</span></td><td>Admin created a new user account; new user could log in with the correct role and access.</td></tr>
+                        <tr><td>TC-6.2</td><td>Delete User Account</td><td><span class="status pass">Pass</span></td><td>Admin deleted the test user account; user was removed from the list and could no longer log in (invalid credentials).</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Recommendations -->
+        <div class="section">
+            <div class="section-header" onclick="toggleSection(this)">
+                <h2>Recommendations</h2>
+                <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </div>
+            <div class="section-content">
+                <ol style="padding-left: 20px; line-height: 2;">
+                    <li>
+                        <strong>Recommendation:</strong> In Cashier and Manager → Sales Out, increase the number of products shown by default in the "Select Products" list (for example, from 3 items to 10+ or add clear pagination / "Show more" controls) so cashiers and managers can see more of the catalog without searching by name. <em>Click the image below to view full size.</em>
+                        <div style="margin-top: 12px; text-align: center;">
+                            <p style="font-size: 12px; color: #4a5568; margin-bottom: 6px;"><strong>Illustration:</strong> Current Cashier / Manager "Select Products" view — only three visible items with "All Categories" selected.</p>
+                            <img class="report-img" src="sc/cashier_select_products.png" alt="Cashier Select Products showing only three items with All Categories selected" style="max-width: 320px; width: 100%; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);" title="Click to enlarge" />
+                        </div>
+                    </li>
+                    <li><strong>Recommendation:</strong> Add a transaction history (or "View Sales" / "Previous Transactions") that Cashier, Manager, and Admin can access so users can look up past sales, refunds, or disputes and see details such as date, items, amounts, and who processed the transaction.</li>
+                    <li><strong>Recommendation:</strong> Add an Expenses History view for Admin (and optionally Manager/Cashier) that lists all paid expenses and paid checks with amount, paid date, category, and notes, so previous outgoing payments can be reviewed and audited in one place.</li>
+                    <li><strong>Recommendation:</strong> Show the active branch name clearly in the header or main workspace for Cashier and Manager accounts (similar to Admin), so staff always know which branch they are operating on when selling, editing inventory, or recording expenses.</li>
+                    <li><strong>Recommendation:</strong> Allow Managers (and optionally Cashiers) to quickly view inventory of other branches (read-only) so they can tell customers if an item is available in another branch and coordinate reservations or transfers.</li>
+                    <li>
+                        <strong>Recommendation:</strong> Add pagination (or a fixed-height table with pages) to the Inventory list so that when the number of items grows large, users don’t have to scroll very far to find products. This will make long inventories more manageable for Admin/Manager.
+                        <div style="margin-top: 12px; text-align: center;">
+                            <p style="font-size: 12px; color: #4a5568; margin-bottom: 6px;"><strong>Illustration:</strong> Inventory screen with many items requiring a very long scroll.</p>
+                            <img class="report-img" src="sc/inventory_pagination.png" alt="Inventory list with many products and long scroll, highlighting the need for pagination" style="max-width: 360px; width: 100%; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);" title="Click to enlarge" />
+                        </div>
+                    </li>
+                    <li><strong>Recommendation:</strong> Clear or reload branch-specific cached data on logout/login and when the branch is changed, so that after switching from Admin (Main Branch) to a Manager of another branch, the Inventory and other views always reflect only the new branch’s data from the first load (addresses BUG-014).</li>
+                </ol>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <p> MotorParts Inventory & POS System v1.0</p>
+            <p>Test Coverage: Authentication, Authorization, Inventory, POS, Dashboard, Multi-Branch, User Management</p>
+        </div>
+    </div>
+    
+    <!-- Lightbox for image preview -->
+    <div class="lightbox-overlay" id="lightbox" onclick="if(event.target===this) closeLightbox();">
+        <span class="lightbox-close" onclick="closeLightbox();" aria-label="Close">&times;</span>
+        <img src="" alt="" id="lightbox-img" onclick="event.stopPropagation();" />
+    </div>
+    
+    <script>
+        function toggleSection(header) {
+            header.classList.toggle('open');
+            const content = header.nextElementSibling;
+            content.classList.toggle('active');
+        }
+        function openLightbox(src, alt) {
+            var lb = document.getElementById('lightbox');
+            var img = document.getElementById('lightbox-img');
+            img.src = src;
+            img.alt = alt || '';
+            lb.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        function closeLightbox() {
+            document.getElementById('lightbox').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+        document.querySelectorAll('.report-img').forEach(function(el) {
+            el.addEventListener('click', function() { openLightbox(this.src, this.alt); });
+        });
+        document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeLightbox(); });
+    </script>
+</body>
+</html>
