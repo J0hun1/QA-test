@@ -141,7 +141,7 @@
         <!-- Bug Summary (blank, to be filled for new cycle) -->
         <div class="section">
             <div class="section-header open" onclick="toggleSection(this)">
-                <h2>Bugs Found (3 Issues So Far)</h2>
+                <h2>Bugs Found (4 Issues So Far)</h2>
                 <span class="badge fail">Action Required</span>
                 <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
             </div>
@@ -198,6 +198,23 @@
                         <div style="flex: 1 1 260px; max-width: 560px;">
                             <p style="font-size: 12px; color: #4a5568; margin-bottom: 4px; text-align: center;">History &rarr; Deleted Product entries lacking branch context</p>
                             <img class="report-img" src="sc/delete_history.png" alt="History view showing Deleted Product rows where the branch for the deleted item is not visible" style="width: 100%; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1);" title="Click to enlarge" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bug-card">
+                    <h4>BUG-018: Inventory Edits Do Not Show Stock Change in History <span class="severity medium">Medium</span></h4>
+                    <p><strong>Location:</strong> Admin → Inventory (edit product) and Admin → History → Activity History table</p>
+                    <p><strong>Steps:</strong> Log in as Admin → Go to <em>Inventory</em> → Edit a product and increase its stock quantity → Save changes → Open <em>History</em> and check the corresponding <em>Updated Product</em> entries.</p>
+                    <p><strong>Expected:</strong> The History row for an inventory edit that changes stock should clearly show <em>Qty Before</em> and <em>Qty After</em> values (e.g. 10 → 13) and the Details should describe that the stock level was updated.</p>
+                    <p><strong>Actual:</strong> The Updated Product entries for this edit show dashes (—) for <em>Qty Before</em> and <em>Qty After</em>, and the Details cell only says “Product details updated” without specifying the stock change.</p>
+                    <p><strong>Impact:</strong> Makes it hard to audit stock adjustments from the History view; owners and admins cannot easily see how inventory levels changed over time for a given product.</p>
+                    <p><strong>Recommendation:</strong> When product edits include a stock change, log the old and new quantity into History (populate Qty Before/After and/or include a clear message in Details such as “Stock: 10 → 13”) so stock movements via Inventory are fully traceable.</p>
+                    <p style="margin-top: 10px;"><strong>Preview:</strong> Activity History showing Updated Product entries where quantity fields and details do not reflect the stock increase.</p>
+                    <div style="display: flex; justify-content: center; margin-top: 6px;">
+                        <div style="flex: 1 1 260px; max-width: 560px;">
+                            <p style="font-size: 12px; color: #4a5568; margin-bottom: 4px; text-align: center;">History &rarr; Updated Product rows missing clear stock before/after values</p>
+                            <img class="report-img" src="sc/stock_history.png" alt="History view showing Updated Product entries after increasing stock, but Qty Before/After not populated and details only say Product details updated" style="width: 100%; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1);" title="Click to enlarge" />
                         </div>
                     </div>
                 </div>
