@@ -141,7 +141,7 @@
         <!-- Bug Summary (blank, to be filled for new cycle) -->
         <div class="section">
             <div class="section-header open" onclick="toggleSection(this)">
-                <h2>Bugs Found (1 Issue So Far)</h2>
+                <h2>Bugs Found (3 Issues So Far)</h2>
                 <span class="badge fail">Action Required</span>
                 <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
             </div>
@@ -164,6 +164,40 @@
                         <div style="flex: 1 1 260px; max-width: 560px;">
                             <p style="font-size: 12px; color: #4a5568; margin-bottom: 4px; text-align: center;">History &rarr; Details column where long text cannot be fully read</p>
                             <img class="report-img" src="sc/detail_length.png" alt="History view showing truncated details text ending in ellipsis with no way to read the full content" style="width: 100%; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1);" title="Click to enlarge" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bug-card">
+                    <h4>BUG-016: Cannot Create Additional Admin User & No Feedback <span class="severity high">High</span></h4>
+                    <p><strong>Location:</strong> Admin → Settings → Users → Add User modal (Role = Admin)</p>
+                    <p><strong>Steps:</strong> Log in as Admin → Go to <em>Settings</em> → Click <em>Add User</em> → Fill in Username, Password, set Role to <em>Admin</em> → Click <em>Add User</em> button.</p>
+                    <p><strong>Expected:</strong> The system should either successfully create the new admin (showing a clear success message and adding the user to the list) or show a clear error/validation message if additional admin accounts are not allowed or if the request fails.</p>
+                    <p><strong>Actual:</strong> Clicking <em>Add User</em> closes/does nothing visually, no success or error message is shown, and the new admin user is <strong>not</strong> added to the Users list.</p>
+                    <p><strong>Impact:</strong> Admins cannot reliably add another admin account and have no feedback whether the operation succeeded or failed, which can block handover, backup admin creation, or onboarding of new admins.</p>
+                    <p><strong>Recommendation:</strong> Ensure the Add User flow for the Admin role is fully wired to the backend with proper validation and error handling. Always show explicit feedback (success toast/banner and updated list, or a clear error message explaining why the admin cannot be created).</p>
+                    <p style="margin-top: 10px;"><strong>Preview:</strong> Settings screen with Add New User modal filled for an Admin role, where clicking Add User does not create the new admin or show any status message.</p>
+                    <div style="display: flex; justify-content: center; margin-top: 6px;">
+                        <div style="flex: 1 1 260px; max-width: 560px;">
+                            <p style="font-size: 12px; color: #4a5568; margin-bottom: 4px; text-align: center;">Settings → Users: Add User modal for creating an additional Admin</p>
+                            <img class="report-img" src="sc/admin_creation.png" alt="Settings page with Add New User modal showing attempt to create another Admin user without any success or error feedback" style="width: 100%; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1);" title="Click to enlarge" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bug-card">
+                    <h4>BUG-017: Deleted Product History Does Not Show Branch <span class="severity medium">Medium</span></h4>
+                    <p><strong>Location:</strong> Admin / Manager → History → Activity History table → <em>Deleted Product</em> entries</p>
+                    <p><strong>Steps:</strong> From a specific branch, delete a product (as Admin or Manager) → Open <em>History</em> → Filter or scan for the corresponding <em>Deleted Product</em> action.</p>
+                    <p><strong>Expected:</strong> For each deleted product entry, the History row should clearly indicate which branch the product belonged to at the time of deletion, so admins can see where the change happened.</p>
+                    <p><strong>Actual:</strong> Deleted Product entries do not show the branch context for the deleted item, making it unclear which branch the deletion came from, especially when viewing history while another branch is selected.</p>
+                    <p><strong>Impact:</strong> Reduces auditability for inventory changes—admins cannot easily answer which branch a given deleted product came from, which is important when multiple branches are in use.</p>
+                    <p><strong>Recommendation:</strong> Include the originating branch for deleted products directly in the History row (e.g., populate the Branch column or add it to the Details text) so branch-level inventory changes are fully traceable.</p>
+                    <p style="margin-top: 10px;"><strong>Preview:</strong> Activity History showing multiple Deleted Product entries without clear branch information for where each product was deleted.</p>
+                    <div style="display: flex; justify-content: center; margin-top: 6px;">
+                        <div style="flex: 1 1 260px; max-width: 560px;">
+                            <p style="font-size: 12px; color: #4a5568; margin-bottom: 4px; text-align: center;">History &rarr; Deleted Product entries lacking branch context</p>
+                            <img class="report-img" src="sc/delete_history.png" alt="History view showing Deleted Product rows where the branch for the deleted item is not visible" style="width: 100%; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1);" title="Click to enlarge" />
                         </div>
                     </div>
                 </div>
