@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QA Test Report - MotorParts Management System (Page 2)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f7; color: #1f2933; line-height: 1.6; }
+        .container { max-width: 1220px; margin: 0 auto; padding: 24px 28px; }
+        
+        /* Header */
+        .header { background: #2c5282; color: white; padding: 30px; border-radius: 12px; margin-bottom: 18px; }
+        .header h1 { font-size: 28px; margin-bottom: 5px; }
+        .header p { opacity: 0.9; font-size: 14px; }
+        
+        /* Simple nav between report pages */
+        .report-nav { display: flex; justify-content: flex-end; gap: 10px; margin-bottom: 22px; font-size: 13px; color: #4b5563; }
+        .report-nav a { color: #2563eb; text-decoration: none; padding: 4px 10px; border-radius: 999px; border: 1px solid transparent; }
+        .report-nav a:hover { background: #eff6ff; border-color: #bfdbfe; }
+        .report-nav .active { background: #1d4ed8; color: #f9fafb; border-color: #1d4ed8; cursor: default; }
+        
+        /* Summary Cards */
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 18px;
+            margin-bottom: 28px;
+        }
+        .card {
+            padding: 18px 20px;
+            border-radius: 14px;
+            text-align: left;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
+            background: radial-gradient(circle at top left, rgba(255,255,255,0.12), transparent 55%);
+            border: 1px solid rgba(148, 163, 184, 0.35);
+        }
+        .card.total {
+            background: linear-gradient(135deg, #0f172a, #1f2937);
+            color: #f9fafb;
+            border-color: rgba(156, 163, 175, 0.6);
+        }
+        .card.pass {
+            background: linear-gradient(135deg, #0f766e, #22c55e);
+            color: #ecfdf5;
+        }
+        .card.fail {
+            background: linear-gradient(135deg, #b91c1c, #f97373);
+            color: #fef2f2;
+        }
+        .card.warn {
+            background: linear-gradient(135deg, #92400e, #facc15);
+            color: #fefce8;
+        }
+        .card.skip {
+            background: linear-gradient(135deg, #4b5563, #9ca3af);
+            color: #f9fafb;
+        }
+        .card .number { font-size: 32px; font-weight: 700; line-height: 1; }
+        .card .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; margin-top: 8px; opacity: 0.9; }
+        
+        /* Sections */
+        .section { background: white; border-radius: 12px; margin-bottom: 20px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .section-header { padding: 15px 20px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+        .section-header:hover { background: #edf2f7; }
+        .section-header h2 { font-size: 16px; color: #2d3748; }
+        .section-header .badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .badge.pass { background: #c6f6d5; color: #276749; }
+        .badge.fail { background: #fed7d7; color: #c53030; }
+        .badge.warn { background: #fefcbf; color: #975a16; }
+        .badge.skip { background: #e2e8f0; color: #4a5568; }
+        .section-content { padding: 20px; display: none; }
+        .section-content.active { display: block; }
+        
+        /* Test Results Table */
+        .test-table { width: 100%; border-collapse: collapse; }
+        .test-table th { text-align: left; padding: 10px 15px; background: #f8fafc; font-size: 12px; text-transform: uppercase; color: #718096; border-bottom: 2px solid #e2e8f0; }
+        .test-table td { padding: 12px 15px; border-bottom: 1px solid #e2e8f0; font-size: 14px; }
+        .test-table tr:hover { background: #f7fafc; }
+        .status { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; }
+        .status.pass { background: #c6f6d5; color: #276749; }
+        .status.fail { background: #fed7d7; color: #c53030; }
+        .status.warn { background: #fefcbf; color: #975a16; }
+        .status.skip { background: #e2e8f0; color: #4a5568; }
+        .status::before { content: ''; width: 8px; height: 8px; border-radius: 50%; }
+        .status.pass::before { background: #38a169; }
+        .status.fail::before { background: #e53e3e; }
+        .status.warn::before { background: #d69e2e; }
+        .status.skip::before { background: #718096; }
+        
+        /* Bug Report */
+        .bug-card { background: #fff5f5; border-left: 4px solid #e53e3e; padding: 15px 20px; margin-bottom: 15px; border-radius: 0 8px 8px 0; }
+        .bug-card.minor { background: #fffff0; border-left-color: #d69e2e; }
+        .bug-card h4 { color: #c53030; margin-bottom: 8px; font-size: 15px; }
+        .bug-card.minor h4 { color: #975a16; }
+        .bug-card p { font-size: 13px; color: #4a5568; margin-bottom: 5px; }
+        .bug-card .severity { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-left: 10px; }
+        .severity.high { background: #fed7d7; color: #c53030; }
+        .severity.medium { background: #fefcbf; color: #975a16; }
+        .severity.low { background: #bee3f8; color: #2b6cb0; }
+        
+        /* Footer */
+        .footer { text-align: center; padding: 20px; color: #718096; font-size: 13px; }
+        
+        /* Collapsible */
+        .chevron { transition: transform 0.3s; }
+        .section-header.open .chevron { transform: rotate(180deg); }
+        
+        /* Lightbox */
+        .report-img { cursor: pointer; }
+        .lightbox-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; z-index: 9999; padding: 20px; box-sizing: border-box; }
+        .lightbox-overlay.active { display: flex; }
+        .lightbox-overlay img { max-width: 95vw; max-height: 95vh; object-fit: contain; border-radius: 8px; box-shadow: 0 4px 24px rgba(0,0,0,0.4); }
+        .lightbox-overlay .lightbox-close { position: absolute; top: 16px; right: 24px; color: white; font-size: 32px; cursor: pointer; line-height: 1; opacity: 0.9; }
+        .lightbox-overlay .lightbox-close:hover { opacity: 1; }
+        
+        /* Print Styles */
+        @media print {
+            .section-content { display: block !important; }
+            .header { break-inside: avoid; }
+            .section { break-inside: avoid; }
+            .lightbox-overlay { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>QA Test Report – Page 2</h1>
+            <p>MotorParts Inventory & POS Management System</p>
+            <p>This page is for the next round of QA testing after fixes from Page 1.</p>
+        </div>
+
+        <!-- Navigation between pages -->
+        <div class="report-nav">
+            <a href="index.html">Page 1 – Original Report</a>
+            <a href="page2.html" class="active">Page 2 – Next QA Cycle</a>
+        </div>
+        
+        <!-- Bug Summary (blank, to be filled for new cycle) -->
+        <div class="section">
+            <div class="section-header open" onclick="toggleSection(this)">
+                <h2>Bugs Found (1 Issue So Far)</h2>
+                <span class="badge fail">Action Required</span>
+                <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </div>
+            <div class="section-content active">
+                <p style="font-size: 13px; color: #4a5568; margin-bottom: 12px;">
+                    Use this section to log any new bugs discovered during the next QA cycle. You can copy the bug card
+                    format from Page 1 and adjust IDs (e.g., start from BUG-015) to keep numbering chronological across cycles.
+                </p>
+
+                <div class="bug-card minor">
+                    <h4>BUG-015: History Details Column Truncates Long Text <span class="severity low">Low</span></h4>
+                    <p><strong>Location:</strong> Admin → History → Activity History table → <em>Details</em> column</p>
+                    <p><strong>Steps:</strong> Log in as Admin → Go to <em>History</em> → Look for rows with long details text (e.g. Sales Out entries with quantity and price breakdown).</p>
+                    <p><strong>Expected:</strong> The full details string should be readable (either by wrapping to multiple lines or via a hover tooltip / click-to-expand so the entire message is visible).</p>
+                    <p><strong>Actual:</strong> The Details cell cuts off the text and ends with an ellipsis (<code>...</code>) with no way to reveal the full content. Important information about the transaction (units, prices) is hidden.</p>
+                    <p><strong>Impact:</strong> Makes it hard to audit specific activity history entries because staff cannot see the complete transaction description directly from the History view.</p>
+                    <p><strong>Recommendation:</strong> Allow the Details column to show the full message (e.g., wrap text within the cell) or add a clear interaction (hover tooltip or clickable icon/modal) that displays the complete details string so admins can read everything recorded.</p>
+                    <p style="margin-top: 10px;"><strong>Preview:</strong> Activity History screen with long details text truncated with an ellipsis.</p>
+                    <div style="display: flex; justify-content: center; margin-top: 6px;">
+                        <div style="flex: 1 1 260px; max-width: 560px;">
+                            <p style="font-size: 12px; color: #4a5568; margin-bottom: 4px; text-align: center;">History &rarr; Details column where long text cannot be fully read</p>
+                            <img class="report-img" src="sc/detail_length.png" alt="History view showing truncated details text ending in ellipsis with no way to read the full content" style="width: 100%; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1);" title="Click to enlarge" />
+                        </div>
+                    </div>
+                </div>
+                <!-- Add additional bug cards here as you test in the new cycle -->
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p> MotorParts Inventory & POS System v1.0</p>
+            <p>Page 2 – Follow-up QA cycle after initial report.</p>
+        </div>
+    </div>
+    
+    <!-- Lightbox for image preview -->
+    <div class="lightbox-overlay" id="lightbox" onclick="if(event.target===this) closeLightbox();">
+        <span class="lightbox-close" onclick="closeLightbox();" aria-label="Close">&times;</span>
+        <img src="" alt="" id="lightbox-img" onclick="event.stopPropagation();" />
+    </div>
+    
+    <script>
+        function toggleSection(header) {
+            header.classList.toggle('open');
+            const content = header.nextElementSibling;
+            content.classList.toggle('active');
+        }
+        function openLightbox(src, alt) {
+            var lb = document.getElementById('lightbox');
+            var img = document.getElementById('lightbox-img');
+            img.src = src;
+            img.alt = alt || '';
+            lb.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        function closeLightbox() {
+            document.getElementById('lightbox').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+        document.querySelectorAll('.report-img').forEach(function(el) {
+            el.addEventListener('click', function() { openLightbox(this.src, this.alt); });
+        });
+        document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeLightbox(); });
+    </script>
+</body>
+</html>
