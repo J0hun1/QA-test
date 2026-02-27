@@ -87,7 +87,7 @@
         <!-- Bug Summary (start blank for this cycle) -->
         <div class="section">
             <div class="section-header open" onclick="toggleSection(this)">
-                <h2>Bugs Found (2 Issues So Far)</h2>
+                <h2>Bugs Found (3 Issues So Far)</h2>
                 <span class="badge fail">Action Required</span>
                 <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
             </div>
@@ -135,6 +135,23 @@
                         <div style="flex: 1 1 260px; max-width: 360px;">
                             <p style="font-size: 12px; color: #4a5568; margin-bottom: 4px; text-align: center;">3. Inventory stock count unchanged after Wholesale</p>
                             <img class="report-img" src="sc/wholesale_3.png" alt="Inventory list showing product stock count unchanged after wholesale order completion" style="width: 100%; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1);" title="Click to enlarge" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bug-card">
+                    <h4>BUG-021: Activity History No Longer Logs Any Events After Fix <span class="severity high">High</span></h4>
+                    <p><strong>Location:</strong> Admin → History → Activity History</p>
+                    <p><strong>Steps:</strong> After the recent fixes, perform various actions that should create history entries (Sales Out, Stock In, product updates, wholesale orders, deletions) → Go to <em>History</em> and check the Activity History list for all branches, all actions, and all users.</p>
+                    <p><strong>Expected:</strong> Every relevant action (sales, stock movements, product updates, deletions, etc.) should appear in Activity History, filtered appropriately by branch, action, and user.</p>
+                    <p><strong>Actual:</strong> Activity History shows &quot;No activity logs found&quot; and remains empty even after performing multiple actions that previously created entries. No sales out, stock in, updates, wholesale orders, or deletions are logged.</p>
+                    <p><strong>Impact:</strong> Completely breaks auditability—admins lose visibility into who changed what and when, across all branches and actions. This makes it hard to investigate issues, reconcile inventory, or review staff activity.</p>
+                    <p><strong>Recommendation:</strong> Investigate the recent changes to the logging logic or backend that may have disabled history writes. Restore event logging for all relevant flows and add automated tests to ensure future fixes cannot silently stop Activity History from recording entries.</p>
+                    <p style="margin-top: 10px;"><strong>Preview:</strong> History screen showing an empty Activity History list with &quot;No activity logs found&quot; despite recent operations.</p>
+                    <div style="display: flex; justify-content: center; margin-top: 6px;">
+                        <div style="flex: 1 1 260px; max-width: 560px;">
+                            <p style="font-size: 12px; color: #4a5568; margin-bottom: 4px; text-align: center;">History &rarr; Activity History showing no logs after performing sales, stock, and update actions</p>
+                            <img class="report-img" src="sc/history_error.png" alt="Activity History view showing No activity logs found even after multiple actions" style="width: 100%; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1);" title="Click to enlarge" />
                         </div>
                     </div>
                 </div>
