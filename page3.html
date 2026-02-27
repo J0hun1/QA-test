@@ -87,7 +87,7 @@
         <!-- Bug Summary (start blank for this cycle) -->
         <div class="section">
             <div class="section-header open" onclick="toggleSection(this)">
-                <h2>Bugs Found (1 Issue So Far)</h2>
+                <h2>Bugs Found (2 Issues So Far)</h2>
                 <span class="badge fail">Action Required</span>
                 <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
             </div>
@@ -110,6 +110,31 @@
                         <div style="flex: 1 1 260px; max-width: 560px;">
                             <p style="font-size: 12px; color: #4a5568; margin-bottom: 4px; text-align: center;">Inventory → Edit Product: confusing failure alert on save</p>
                             <img class="report-img" src="sc/edit_fail.png" alt="Inventory Edit Product modal with a browser alert saying Failed to save product: true when attempting to save changes" style="width: 100%; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1);" title="Click to enlarge" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bug-card">
+                    <h4>BUG-020: Wholesale Orders Do Not Decrease Product Stock <span class="severity high">High</span></h4>
+                    <p><strong>Location:</strong> Admin / Manager → Whole Sale → Create Wholesale Order</p>
+                    <p><strong>Steps:</strong> Log in as Admin or Manager → Go to <em>Whole Sale</em> → Select a product that has existing stock → Place a wholesale order for some quantity → Complete the order (see &quot;Wholesale order complete&quot; confirmation) → Check the product’s stock in <em>Inventory</em>.</p>
+                    <p><strong>Expected:</strong> After a wholesale order is completed, the ordered quantity should be deducted from the product’s stock so Inventory reflects the reduced on-hand quantity.</p>
+                    <p><strong>Actual:</strong> Even after &quot;Wholesale order complete&quot; is shown, the product’s stock count in Inventory does not decrease—the quantity ordered via Wholesale is not subtracted from the stock.</p>
+                    <p><strong>Impact:</strong> Inventory becomes inaccurate whenever Wholesale is used, leading to overstated stock and potential overselling because wholesale movements are not reflected in the main inventory count.</p>
+                    <p><strong>Recommendation:</strong> Ensure the Wholesale completion flow updates inventory in the same way as Sales Out—subtract the ordered quantity from stock for the appropriate branch and record the movement in History for audit.</p>
+                    <p style="margin-top: 10px;"><strong>Preview:</strong> Wholesale order flow showing a completed order while the product’s stock count remains unchanged.</p>
+                    <div style="display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 6px;">
+                        <div style="flex: 1 1 260px; max-width: 360px;">
+                            <p style="font-size: 12px; color: #4a5568; margin-bottom: 4px; text-align: center;">1. Selecting product and quantity in Wholesale</p>
+                            <img class="report-img" src="sc/wholesale_1.png" alt="Wholesale screen showing selection of product and quantity for order" style="width: 100%; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1);" title="Click to enlarge" />
+                        </div>
+                        <div style="flex: 1 1 260px; max-width: 360px;">
+                            <p style="font-size: 12px; color: #4a5568; margin-bottom: 4px; text-align: center;">2. Wholesale order summary / completion</p>
+                            <img class="report-img" src="sc/wholesale_2.png" alt="Wholesale order summary indicating order completion" style="width: 100%; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1);" title="Click to enlarge" />
+                        </div>
+                        <div style="flex: 1 1 260px; max-width: 360px;">
+                            <p style="font-size: 12px; color: #4a5568; margin-bottom: 4px; text-align: center;">3. Inventory stock count unchanged after Wholesale</p>
+                            <img class="report-img" src="sc/wholesale_3.png" alt="Inventory list showing product stock count unchanged after wholesale order completion" style="width: 100%; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1);" title="Click to enlarge" />
                         </div>
                     </div>
                 </div>
