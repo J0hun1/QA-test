@@ -87,7 +87,7 @@
         <!-- Bug Summary (start blank for this cycle) -->
         <div class="section">
             <div class="section-header open" onclick="toggleSection(this)">
-                <h2>Bugs Found (3 Issues So Far)</h2>
+                <h2>Bugs Found (4 Issues So Far)</h2>
                 <span class="badge fail">Action Required</span>
                 <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
             </div>
@@ -155,6 +155,27 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="bug-card minor">
+                    <h4>BUG-022: Product Allows Cost Higher Than Selling Price (Negative Profit) <span class="severity medium">Medium</span></h4>
+                    <p><strong>Location:</strong> Admin / Manager → Inventory → Add Product (and Edit Product)</p>
+                    <p><strong>Steps:</strong> Add or edit a product so that <em>Cost</em> is higher than <em>Retail Price</em> and/or <em>Wholesale Price</em> → Save the product → Observe profit calculations/indicators where applicable.</p>
+                    <p><strong>Expected:</strong> The system should prevent obvious invalid pricing that results in negative profit (e.g., block save with validation), or at minimum warn the user and require explicit confirmation (since it can be a data-entry mistake).</p>
+                    <p><strong>Actual:</strong> The form allows saving a product with cost higher than selling price, resulting in negative profit values.</p>
+                    <p><strong>Impact:</strong> Can silently introduce pricing/data errors that make the business appear to lose money on items unintentionally, and can skew profit reporting and decision-making.</p>
+                    <p><strong>Recommendation:</strong> Add validation or warning: require Retail/Wholesale to be ≥ Cost (or allow override with confirmation and reason). Also highlight negative-profit products in the UI so they’re easy to catch and correct.</p>
+                    <p style="margin-top: 10px;"><strong>Preview:</strong> Example of a product configuration that yields negative profit due to cost exceeding selling price.</p>
+                    <div style="display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 6px;">
+                        <div style="flex: 1 1 260px; max-width: 360px;">
+                            <p style="font-size: 12px; color: #4a5568; margin-bottom: 4px; text-align: center;">1. Product pricing setup (cost higher than price)</p>
+                            <img class="report-img" src="sc/negative_branch.png" alt="Example showing product cost higher than retail/wholesale price" style="width: 100%; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1);" title="Click to enlarge" />
+                        </div>
+                        <div style="flex: 1 1 260px; max-width: 360px;">
+                            <p style="font-size: 12px; color: #4a5568; margin-bottom: 4px; text-align: center;">2. Negative profit result</p>
+                            <img class="report-img" src="sc/negative_branch2.png" alt="Example showing negative profit due to cost exceeding selling price" style="width: 100%; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1);" title="Click to enlarge" />
+                        </div>
+                    </div>
+                </div>
                 <!-- Add additional bug cards here as you test in this cycle -->
             </div>
         </div>
@@ -171,7 +192,13 @@
                     attach screenshots as needed.
                 </p>
                 <ol style="padding-left: 20px; line-height: 2;">
-                    <li><strong>Recommendation:</strong> Describe any follow-up improvement for this cycle and tie it to the relevant BUG ID from this page.</li>
+                    <li>
+                        <strong>Recommendation:</strong> In the Inventory list, add a visible <em>Cost</em> column alongside Stock, Retail Price, Wholesale Price, and Profit/Unit so admins can quickly see cost, selling prices, and profit margin per product without opening the edit modal.
+                        <div style="margin-top: 12px; text-align: center;">
+                            <p style="font-size: 12px; color: #4a5568; margin-bottom: 6px;"><strong>Illustration:</strong> Inventory table where a Cost column would help compare cost vs. selling prices and profit/unit at a glance.</p>
+                            <img class="report-img" src="sc/cost_column.png" alt="Inventory list showing product, category, stock, retail, wholesale and profit per unit, with space for a Cost column" style="max-width: 420px; width: 100%; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);" title="Click to enlarge" />
+                        </div>
+                    </li>
                 </ol>
             </div>
         </div>
